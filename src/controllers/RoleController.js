@@ -27,5 +27,10 @@ class RoleCotroller {
         console.log(data)
         return MidRole.updateRoleUser(data.user_id,data.listUserRole)
     }
+    async updateRolePermission(req,res)
+    {
+        let data = req.body;
+        return MidRole.updateRolePermission(data.role_id,data.listPermission)
+    }
 }
 export default new RoleCotroller();

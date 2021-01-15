@@ -1,4 +1,4 @@
-import { Role, UserRole } from '../core'
+import { Role, UserRole,RolePermission } from '../core'
 import { ERROR_MESSAGE } from '../../config/error';
 import { Op } from 'sequelize';
 import { RoleApi } from 'npm-longttl-12'
@@ -134,6 +134,26 @@ class MidRole {
 
         // return listUserRole;
         return await RoleApi.updateRoleUser(user_id,listUserRole)
+    }
+    async updateRolePermission(role_id, listPermission) {
+        const oldPermisison = await RolePermission.findAll({where:{role_id}});
+        const oldPermisisonIds = oldPermisison.map(it => it.permission_id);
+        oldPermisison.forEach(it => {
+            if (!listPermission.includes(it.permission_id)) {
+                it.destroy();
+            }
+        })
+
+        let insertNewPermission = [];
+        listPermission.forEach(it => {
+            if (!oldPermisisonIds.includes(it)) {
+                insertNewPermission.push(
+                    RolePermission.create({ role_id:role_id, permission_id: it })
+                )
+            }
+        })
+
+        return insertNewPermission;
     }
 
 }

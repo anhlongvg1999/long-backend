@@ -13,7 +13,7 @@
     export default class Roles extends BaseModel {
 
         static association() {
-            Roles.hasMany(RolePermission, {as: 'permission', foreignKey: 'roleid', hooks: true, onDelete: 'CASCADE', onUpdate : 'NO ACTION'});
+            Roles.hasMany(RolePermission, {as: 'permission', foreignKey: 'role_id', hooks: true, onDelete: 'CASCADE', onUpdate : 'NO ACTION'});
         }
     }
 

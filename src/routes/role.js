@@ -10,5 +10,6 @@ routerApp.post('/updateRole',Response(RoleCotroller.updateRole));
 routerApp.get('/deleteRole',Response(RoleCotroller.deleteRole));
 routerApp.get('/searchRole',Response(RoleCotroller.searchRole));
 routerApp.post('/updateRoleUser',Response(RoleCotroller.updateRoleUser));
+routerApp.post('/updateRolePermission',Response(RoleCotroller.updateRolePermission));
 
 export default routerApp;
