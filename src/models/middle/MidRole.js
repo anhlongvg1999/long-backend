@@ -1,6 +1,6 @@
 import { Role, UserRole, RolePermission, Permissions } from '../core'
 import { ERROR_MESSAGE } from '../../config/error';
-import { Op } from 'sequelize';
+import { Op, where } from 'sequelize';
 import { RoleApi } from 'npm-longttl-12'
 class MidRole {
     async getallRole(data) {
@@ -107,9 +107,10 @@ class MidRole {
         if (existRoleUser) {
             throw new Error(ERROR_MESSAGE.REMOVE_ROLE.ERR_EXIST_USER);
         }
-        await RolePermission.destroy({where:{role_id:data.id}})
+        await RolePermission.destroy({ where: { role_id: data.id } })
         return objDelete.update(dataDelete)
     }
+
     async updateRole(data) {
         if (!data.id) {
             throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_SEARCH_NOT_FOUND);
@@ -166,6 +167,31 @@ class MidRole {
         //     total: total || 0
         // }
         return await RoleApi.searchRole(data)
+    }
+    async getRolebyId(role_id) {
+        let allRole = await Role.findOne({ where: { id: role_id }, include: ['permission'] })
+        let List_Role = []
+        let datapush = []
+        let list_permission_id = allRole.permission.map(x => x.permission_id)
+        for (var j = 0; j < list_permission_id.length; j++) {
+            if (list_permission_id[j] == null) break;
+            var list = {};
+            let dataPermissions = await Permissions.findOne({ where: { id: list_permission_id[j] } })
+            list.value = list_permission_id[j];
+            list.label = dataPermissions.name;
+            datapush.push(list)
+        }
+        List_Role.push({
+            id: allRole.id,
+            name: allRole.name,
+            description: allRole.description,
+            del: allRole.del,
+            createdAt: allRole.createdAt,
+            List_Per: datapush
+        })
+        return {
+            rows: List_Role
+        }
     }
     async updateRoleUser(user_id, listUserRole) {
         const oldRoleUser = await UserRole.findAll({ where: { userid: user_id } });

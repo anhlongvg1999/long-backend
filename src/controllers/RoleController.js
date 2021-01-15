@@ -35,5 +35,9 @@ class RoleCotroller {
     {
         return await MidRole.getOneSelect()
     }
+    async getRolebyId(req,res){
+        let dataQuery = req.query;
+        return await MidRole.getRolebyId(dataQuery.role_id)
+    }
 }
 export default new RoleCotroller();

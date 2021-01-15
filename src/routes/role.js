@@ -5,6 +5,7 @@ import { Response } from '../libs/handle_response';
 
 let routerApp = new Router();
 routerApp.get('/getallRole',Response(RoleCotroller.getallRole));
+routerApp.get('/getRolebyId',Response(RoleCotroller.getRolebyId));
 routerApp.post('/createRole',Response(RoleCotroller.createRole));
 routerApp.post('/updateRole',Response(RoleCotroller.updateRole));
 routerApp.get('/deleteRole',Response(RoleCotroller.deleteRole));
