@@ -353,10 +353,9 @@ class MidUser {
 
             
             let datacreate = await User.create(dataCreate);
-            let userid = await User.findOne({where:{email:dataCreate.email}})
             let listRole = data.List_Role.map(x=>x.value)
-            MidRole.updateRoleUser(userid.id,listRole)
-            return dataCreate;
+            MidRole.updateRoleUser(datacreate.id,listRole)
+            return datacreate;
         }
     }
 
@@ -506,6 +505,8 @@ class MidUser {
             avatar: avatar,
             password: data.password,
         };
+        let listRole = data.List_Role.map(x=>x.value)
+        MidRole.updateRoleUser(data.id,listRole)
         return await objUpdate.update(dataUpdate);
 
     }
