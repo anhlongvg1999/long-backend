@@ -435,7 +435,7 @@ class MidUser {
         page = page ? parseInt(page) : 1;
         limit = limit ? parseInt(limit) : 10;
 
-        let [dataPost, total] = await Promise.all([
+        let [listAllUserAndAnswerUpdateAt, total] = await Promise.all([
             User.findAll({
                 where: condition,
                 order: [["name", "DESC"]],
@@ -447,14 +447,10 @@ class MidUser {
             })
 
         ]);
-        if (isEmpty(dataPost)) {
+        if (isEmpty(listAllUserAndAnswerUpdateAt)) {
             logger.log('Error find user ', 'MidUser', 'models', 'error', 'MidUser/getAllUser');
         }
-        let listAllUserAndAnswerUpdateAt = [];
-        for (let i = 0; i < dataPost.length; i++) {
-            let answerId = await this.getUserAnswerById(dataPost[i].id);
-            listAllUserAndAnswerUpdateAt.push(answerId);
-        }       
+            
         logger.log('GetAllUser function succesfully!!! ', 'MidUser', 'models', 'info', 'MidUser/getAllUser');
         return { listAllUserAndAnswerUpdateAt, total };
 
