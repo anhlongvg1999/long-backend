@@ -1,4 +1,4 @@
-import { Role, UserRole, RolePermission, Permissions} from '../core'
+import { Role, UserRole, RolePermission, Permissions } from '../core'
 import { ERROR_MESSAGE } from '../../config/error';
 import { Op } from 'sequelize';
 import { RoleApi } from 'npm-longttl-12'
@@ -23,12 +23,12 @@ class MidRole {
                 where: condition
             })
         ])
-        let List_Role=[]
+        let List_Role = []
         for (var i = 0; i < total; i++) {
             let datapush = []
             let list_permission_id = allRole[i].permission.map(x => x.permission_id)
             for (var j = 0; j < list_permission_id.length; j++) {
-                if(list_permission_id[j] == null) break;
+                if (list_permission_id[j] == null) break;
                 var list = {};
                 let dataPermissions = await Permissions.findOne({ where: { id: list_permission_id[j] } })
                 list.value = list_permission_id[j];
@@ -37,11 +37,12 @@ class MidRole {
             }
             List_Role.push({
                 id: allRole[i].id,
-                name:allRole.name,
-                description:allRole[i].description,
-                del:allRole[i].del,
-                createdAt:allRole[i].createdAt,
-                List_Per:datapush})
+                name: allRole.name,
+                description: allRole[i].description,
+                del: allRole[i].del,
+                createdAt: allRole[i].createdAt,
+                List_Per: datapush
+            })
         }
         return {
             rows: List_Role,
@@ -84,22 +85,30 @@ class MidRole {
         //return await RoleApi.createRole(data);
     }
     async deleteRole(data) {
-        // let objDelete = await Role.findOne({
-        //     where: {
-        //         id: data.id,
-        //         del: 0
-        //     }
-        // })
+        let objDelete = await Role.findOne({
+            where: {
+                id: data.id,
+                del: 0
+            }
+        })
 
-        // if (!objDelete) {
-        //     throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_SEARCH_NOT_FOUND)
-        // };
-        // let dataDelete = {
-        //     del: 1,
-        // }
+        if (!objDelete) {
+            throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_SEARCH_NOT_FOUND)
+        };
+        let dataDelete = {
+            del: 1,
+        }
+        const existRoleUser = await UserRole.findOne({
+            where: {
+                role_id: data.id
+            }
+        })
 
-        // return objDelete.update(dataDelete)
-        return await RoleApi.deleteRole(data)
+        if (existRoleUser) {
+            throw new Error(ERROR_MESSAGE.REMOVE_ROLE.ERR_EXIST_USER);
+        }
+        await RolePermission.destroy({where:{role_id:data.id}})
+        return objDelete.update(dataDelete)
     }
     async updateRole(data) {
         if (!data.id) {
