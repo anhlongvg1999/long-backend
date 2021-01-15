@@ -24,7 +24,6 @@ class RoleCotroller {
     }
     async updateRoleUser(req,res){
         let data = req.body;
-        console.log(data)
         return MidRole.updateRoleUser(data.user_id,data.listUserRole)
     }
     async updateRolePermission(req,res)

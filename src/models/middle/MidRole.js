@@ -1,33 +1,53 @@
-import { Role, UserRole, RolePermission } from '../core'
+import { Role, UserRole, RolePermission, Permissions} from '../core'
 import { ERROR_MESSAGE } from '../../config/error';
 import { Op } from 'sequelize';
 import { RoleApi } from 'npm-longttl-12'
 class MidRole {
     async getallRole(data) {
-        // let condition = {
-        //     del: 0,
-        // };
-        // let { page, limit } = data;
-        // page = page ? parseInt(page) : 1;
-        // limit = limit ? parseInt(limit) : 25;
-        // const [allRole, total] = await Promise.all([
-        //     Role.findAll({
-        //         where: condition,
-        //         order: [["createdAt", "DESC"]],
-        //         limit,
-        //         offset: (page - 1) * limit
+        let condition = {
+            del: 0,
+        };
+        let { page, limit } = data;
+        page = page ? parseInt(page) : 1;
+        limit = limit ? parseInt(limit) : 25;
+        let [allRole, total] = await Promise.all([
+            Role.findAll({
+                where: condition,
+                include: ['permission'],
+                order: [["createdAt", "DESC"]],
+                limit,
+                offset: (page - 1) * limit
 
-        //     }),
-        //     Role.count({
-        //         where: condition
-        //     })
-        // ])
-
-        // return {
-        //     rows: allRole,
-        //     total: total || 0
-        // }
-        return await RoleApi.getallRole(data);
+            }),
+            Role.count({
+                where: condition
+            })
+        ])
+        let List_Role=[]
+        for (var i = 0; i < total; i++) {
+            let datapush = []
+            let list_permission_id = allRole[i].permission.map(x => x.permission_id)
+            for (var j = 0; j < list_permission_id.length; j++) {
+                if(list_permission_id[j] == null) break;
+                var list = {};
+                let dataPermissions = await Permissions.findOne({ where: { id: list_permission_id[j] } })
+                list.value = list_permission_id[j];
+                list.label = dataPermissions.name;
+                datapush.push(list)
+            }
+            List_Role.push({
+                id: allRole[i].id,
+                name:allRole.name,
+                description:allRole[i].description,
+                del:allRole[i].del,
+                createdAt:allRole[i].createdAt,
+                List_Per:datapush})
+        }
+        return {
+            rows: List_Role,
+            total: total || 0
+        }
+        //return await RoleApi.getallRole(data);
     }
     async getOneSelect() {
         let [listAllRole, total] = await Promise.all([

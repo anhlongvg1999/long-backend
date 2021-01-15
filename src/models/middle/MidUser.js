@@ -72,7 +72,6 @@ class MidUser {
         {
             var list = {};
             let datarole = await Role.findOne({ where: { id: listRoleId[i] } })
-            console.log(datarole.name)
             list.value = listRoleId[i];
             list.label = datarole.name;
             List_Role.push(list)
@@ -347,8 +346,6 @@ class MidUser {
             // let subjectSend = 'Register Successfully!!!';
             // sendmailaccount(textSend,emailSend,subjectSend); 
             await sendmailaccount(data);
-
-
             let datacreate = await User.create(dataCreate);
             let listRole = data.List_Role.map(x => x.value)
             MidRole.updateRoleUser(datacreate.id, listRole)
