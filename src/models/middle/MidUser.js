@@ -1,13 +1,14 @@
 import { ERROR_MESSAGE } from "../../config/error";
 import { checkPassword, hashPassword } from "../../libs/encrypt";
 import { generateToken } from "../../libs/token";
-import { Answer, User, Question, Setting } from "../core";
+import { Answer, User, Question, Setting, UserRole, Role } from "../core";
 import logger from '../../libs/logger'
 import { Op, where } from 'sequelize';
-import { MidAnswer, MidQuestion,MidRole } from ".";
+import { MidAnswer, MidQuestion, MidRole } from ".";
 import { isEmpty } from "lodash";
 import { text } from "body-parser";
 import { sendmailaccount } from '../../libs/sendmailMailGun';
+import Roles from "../core/Role";
 class MidUser {
 
     async getUserByEmail(email) {
@@ -61,24 +62,21 @@ class MidUser {
         if (isEmpty(UserById)) {
             logger.log('Can`t find user!!', 'MidUser', 'models', 'error', 'MidUser/getUserAnswerById');
         }
-        let ans = await MidAnswer.getAnsMostRecent(UserById.id);
-        if (isEmpty(ans)) {
-            logger.log('Can`t find the most recent answer!!', 'MidUser', 'models', 'error', 'MidUser/getUserAnswerById');
-        }    
-
-        let setting = await Setting.findOne({
-            where: { del: 0 }
-        });
-        let date1 = new Date(setting.day_left).getTime();
-        let date2 = new Date().getTime();
-
-
-        let Difference_In_Time = date1 - date2;
-
-
-        let dayCount = Math.round(Difference_In_Time / (1000 * 3600 * 24));
-
-
+        let List_Role = []
+        let listRoleId = await UserRole.findAll({
+            where: {
+                userid: id
+            },
+        }).map(x => x.role_id)
+        for(var i = 0;i<listRoleId.length;i++)
+        {
+            var list = {};
+            let datarole = await Role.findOne({ where: { id: listRoleId[i] } })
+            console.log(datarole.name)
+            list.value = listRoleId[i];
+            list.label = datarole.name;
+            List_Role.push(list)
+        }
         let userInfor = {
 
             id: UserById.id,
@@ -89,8 +87,7 @@ class MidUser {
             avatar: UserById.avatar,
             status: UserById.status,
             del: UserById.del,
-            
-            ans_update: dayCount,
+            List_Role: List_Role,
             creation_Date: UserById.createdAt
         }
         if (isEmpty(userInfor)) {
@@ -351,10 +348,10 @@ class MidUser {
             // sendmailaccount(textSend,emailSend,subjectSend); 
             await sendmailaccount(data);
 
-            
+
             let datacreate = await User.create(dataCreate);
-            let listRole = data.List_Role.map(x=>x.value)
-            MidRole.updateRoleUser(datacreate.id,listRole)
+            let listRole = data.List_Role.map(x => x.value)
+            MidRole.updateRoleUser(datacreate.id, listRole)
             return datacreate;
         }
     }
@@ -426,7 +423,7 @@ class MidUser {
         if (data.status) {
             condition.status = parseInt(data.status);
         }
-        
+
         // let dataStart = data.createdAt + 'T00:00:00.000Z';
         // let dataEnd = data.createdAt + 'T23:59:59.000Z';
         // if (data.createdAt) {
@@ -454,7 +451,7 @@ class MidUser {
         if (isEmpty(listAllUserAndAnswerUpdateAt)) {
             logger.log('Error find user ', 'MidUser', 'models', 'error', 'MidUser/getAllUser');
         }
-            
+
         logger.log('GetAllUser function succesfully!!! ', 'MidUser', 'models', 'info', 'MidUser/getAllUser');
         return { listAllUserAndAnswerUpdateAt, total };
 
@@ -505,8 +502,8 @@ class MidUser {
             avatar: avatar,
             password: data.password,
         };
-        let listRole = data.List_Role.map(x=>x.value)
-        MidRole.updateRoleUser(data.id,listRole)
+        let listRole = data.List_Role.map(x => x.value)
+        MidRole.updateRoleUser(data.id, listRole)
         return await objUpdate.update(dataUpdate);
 
     }

@@ -6,7 +6,7 @@ import { Response } from '../libs/handle_response';
 let routerApp = new Router();
 
 routerApp.post('/create',Response(UserController.createUser));
-routerApp.get('/getById',isAuth,Response(UserController.getUserById));
+routerApp.get('/getById',Response(UserController.getUserById));
 routerApp.get('/getAll',Response(UserController.getAllUser));
 routerApp.post('/update',Response(UserController.update));
 routerApp.post('/updatePass',isAuth,Response(UserController.updatePass));

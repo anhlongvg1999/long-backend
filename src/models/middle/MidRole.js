@@ -58,8 +58,8 @@ class MidRole {
             del: 0
         }
         let create = await Role.create(dataCreate);
-        let listPermission = data.List_Per.map(x=>x.value)
-        this.updateRolePermission(create.id,listPermission)
+        let listPermission = data.List_Per.map(x => x.value)
+        this.updateRolePermission(create.id, listPermission)
         return create;
         //return await RoleApi.createRole(data);
     }
@@ -95,8 +95,8 @@ class MidRole {
             name: data.name,
             description: data.description,
         }
-        let listPermission = data.List_Per.map(x=>x.value)
-        this.updateRolePermission(data.id,listPermission)
+        let listPermission = data.List_Per.map(x => x.value)
+        this.updateRolePermission(data.id, listPermission)
         return objUpdate.update(dataUpdate)
         //return await RoleApi.updateRole(data)
     }
@@ -140,7 +140,7 @@ class MidRole {
     }
     async updateRoleUser(user_id, listUserRole) {
         const oldRoleUser = await UserRole.findAll({ where: { userid: user_id } });
-        const oldRoleUserIds = oldRoleUser.map(i=>i.userid)
+        const oldRoleUserIds = oldRoleUser.map(i => i.userid)
         oldRoleUser.forEach(it => {
             if (!listUserRole.includes(it.userid)) {
                 it.destroy();
@@ -150,7 +150,7 @@ class MidRole {
         listUserRole.forEach(it => {
             if (!oldRoleUserIds.includes(it)) {
                 insertNewPermission.push(
-                   UserRole.create({ userid:user_id, role_id: it })
+                    UserRole.create({ userid: user_id, role_id: it })
                 )
             }
         })
