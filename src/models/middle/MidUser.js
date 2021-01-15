@@ -68,8 +68,7 @@ class MidUser {
                 userid: id
             },
         }).map(x => x.role_id)
-        for(var i = 0;i<listRoleId.length;i++)
-        {
+        for (var i = 0; i < listRoleId.length; i++) {
             var list = {};
             let datarole = await Role.findOne({ where: { id: listRoleId[i] } })
             list.value = listRoleId[i];
@@ -472,6 +471,7 @@ class MidUser {
         let dataDelete = {
             del: 1,
         }
+        await UserRole.destroy({ where: { userid: data.id } })
         objDelete.update(dataDelete)
     }
 
