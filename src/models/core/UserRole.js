@@ -15,7 +15,7 @@ import { User } from ".";
 export default class UserRole extends BaseModel {
 
     static association() {
-        UserRole.belongsTo(User, { as: 'user', foreignKey: 'user_id' });
+        UserRole.belongsTo(User, { as: 'user', foreignKey: 'userid' });
     }
 }
 
@@ -30,7 +30,7 @@ const attributes = {
         autoIncrement: true
     },
     userid: {
-        type: DataTypes.INTEGER(10),
+        type: DataTypes.UUID,
         allowNull: true,
         defaultValue: 0
     },
@@ -52,8 +52,16 @@ const attributes = {
 /**
  * Options model
  */
+function beforeCreate(){
+    UserRole.beforeCreate((obj,_) => {
+        return obj.id = uuidv4();
+    });
+}
 const options = {
-    tableName: 'user_role'
+    tableName: 'user_role',
+    hooks: {
+        beforeCreate: beforeCreate
+    }
 };
 
 /**

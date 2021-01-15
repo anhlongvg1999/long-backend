@@ -31,6 +31,10 @@ class RoleCotroller {
     {
         let data = req.body;
         return MidRole.updateRolePermission(data.role_id,data.listPermission)
+    } 
+    async getOneSelect(req,res)
+    {
+        return await MidRole.getOneSelect()
     }
 }
 export default new RoleCotroller();

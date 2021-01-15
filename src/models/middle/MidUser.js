@@ -3,8 +3,8 @@ import { checkPassword, hashPassword } from "../../libs/encrypt";
 import { generateToken } from "../../libs/token";
 import { Answer, User, Question, Setting } from "../core";
 import logger from '../../libs/logger'
-import { Op } from 'sequelize';
-import { MidAnswer, MidQuestion } from ".";
+import { Op, where } from 'sequelize';
+import { MidAnswer, MidQuestion,MidRole } from ".";
 import { isEmpty } from "lodash";
 import { text } from "body-parser";
 import { sendmailaccount } from '../../libs/sendmailMailGun';
@@ -350,8 +350,13 @@ class MidUser {
             // let subjectSend = 'Register Successfully!!!';
             // sendmailaccount(textSend,emailSend,subjectSend); 
             await sendmailaccount(data);
+
             
-            return await User.create(dataCreate);
+            let datacreate = await User.create(dataCreate);
+            let userid = await User.findOne({where:{email:dataCreate.email}})
+            let listRole = data.List_Role.map(x=>x.value)
+            MidRole.updateRoleUser(userid.id,listRole)
+            return dataCreate;
         }
     }
 
@@ -422,7 +427,7 @@ class MidUser {
         if (data.status) {
             condition.status = parseInt(data.status);
         }
-
+        
         // let dataStart = data.createdAt + 'T00:00:00.000Z';
         // let dataEnd = data.createdAt + 'T23:59:59.000Z';
         // if (data.createdAt) {
