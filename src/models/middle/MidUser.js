@@ -1,7 +1,7 @@
 import { ERROR_MESSAGE } from "../../config/error";
 import { checkPassword, hashPassword } from "../../libs/encrypt";
 import { generateToken } from "../../libs/token";
-import { Answer, User, Question, Setting, UserRole, Role } from "../core";
+import { Answer, User, Question, Setting, UserRole, Role, Permissions } from "../core";
 import logger from '../../libs/logger'
 import { Op, where } from 'sequelize';
 import { MidAnswer, MidQuestion, MidRole } from ".";
@@ -202,6 +202,25 @@ class MidUser {
 
         return { userHistory_List, total };
 
+    }
+    async getArrayPermissionOfUser(userid) {
+        let arrayPermissions = [];
+        let listrole = await UserRole.findAll({ where: { userid: userid } }).map(x => x.role_id);
+        for(var i = 0;i<listrole.length;i++){
+            let listPermission = await Role.findOne({
+                where: {
+                    id:listrole[i]
+                },
+                include: ['permission']
+            })
+            let listper_id = listPermission.permission.map(x=>x.permission_id)
+            for(var j = 0;j<listper_id.length;j++)
+            {
+                let listkey = await Permissions.findAll({where:{id:listper_id[j]}}).map(x=>x.key)
+                arrayPermissions.push(listkey[0]);
+            }
+        }
+        return arrayPermissions;
     }
     async loginUser(credentials) {
         const { email, password } = credentials;

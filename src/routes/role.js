@@ -1,10 +1,11 @@
 import { Router } from 'express';
 import { RoleCotroller } from '../controllers';
 import { isAuth } from '../middlewares/auth';
+import { checkPermission } from '../middlewares/permission';
 import { Response } from '../libs/handle_response';
 
 let routerApp = new Router();
-routerApp.get('/getallRole',Response(RoleCotroller.getallRole));
+routerApp.get('/getallRole',checkPermission('createRole'),Response(RoleCotroller.getallRole));
 routerApp.get('/getRolebyId',Response(RoleCotroller.getRolebyId));
 routerApp.post('/createRole',Response(RoleCotroller.createRole));
 routerApp.post('/updateRole',Response(RoleCotroller.updateRole));

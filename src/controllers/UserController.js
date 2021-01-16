@@ -102,5 +102,9 @@ class UserController {
         }
         return await MidUser.getUserAnswerById(data.id);
     }
+    async getArrayPermissionOfUser(req,res){
+        let data = req.query;
+        return MidUser.getArrayPermissionOfUser(data.user_id);
+    }
 }
 export default new UserController();

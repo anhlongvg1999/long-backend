@@ -16,6 +16,6 @@ routerApp.get('/userInfoMobile',isAuth,Response(UserController.getUserInfoMobile
 routerApp.get('/userDetail',isAuth,Response(UserController.detailUser));
 routerApp.get('/getDayLeft',isAuth,Response(UserController.getDayLeftByUserId));
 routerApp.get('/getUserHistory',isAuth,Response(UserController.getUserHistory));
-
+routerApp.get('/getArrayPermissionOfUser',Response(UserController.getArrayPermissionOfUser));
 
 export default routerApp;
