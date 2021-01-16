@@ -1,7 +1,5 @@
-//import { check_permission } from '../helpers/check_permission';
 import { MidUser } from '../models/middle';
 import { checkToken } from '../libs/token';
-import { get } from 'lodash';
 
 export const checkPermission = (action) => {
     return async (req, res, next) => {
