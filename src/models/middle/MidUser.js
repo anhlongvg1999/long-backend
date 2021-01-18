@@ -46,6 +46,7 @@ class MidUser {
         })
         if (isEmpty(user)) {
             logger.log('Can`t find user!!', 'MidUser', 'models', 'error', 'MidUser/getUserByid');
+            throw new Error('Can`t find user!!')
         }
         return user;
     }
@@ -205,7 +206,8 @@ class MidUser {
     }
     async getArrayPermissionOfUser(userid) {
         let arrayPermissions = [];
-        let listrole = await UserRole.findAll({ where: { userid: userid } }).map(x => x.role_id);
+        let userrole = await UserRole.findAll({ where: { userid: userid } })
+        let listrole = userrole.map(x => x.role_id);
         for(var i = 0;i<listrole.length;i++){
             let listPermission = await Role.findOne({
                 where: {
@@ -213,11 +215,12 @@ class MidUser {
                 },
                 include: ['permission']
             })
-            let listper_id = listPermission.permission.map(x=>x.permission_id)
+            let permission = listPermission.permission
+            let listper_id = permission.map(x=>x.permission_id)
             for(var j = 0;j<listper_id.length;j++)
             {
-                let listkey = await Permissions.findAll({where:{id:listper_id[j]}}).map(x=>x.key)
-                arrayPermissions.push(listkey[0]);
+                let listkey = await Permissions.findOne({where:{id:listper_id[j]}})
+                arrayPermissions.push(listkey.key);
             }
         }
         return arrayPermissions;

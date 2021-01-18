@@ -1,7 +1,7 @@
 import { Role, UserRole, RolePermission, Permissions } from '../core'
 import { ERROR_MESSAGE } from '../../config/error';
 import { Op, where } from 'sequelize';
-import { RoleApi } from 'npm-longttl-12'
+import { RoleApi } from 'npm-longttl-123'
 class MidRole {
     async getallRole(data) {
         let condition = {
@@ -51,84 +51,86 @@ class MidRole {
         //return await RoleApi.getallRole(data);
     }
     async getOneSelect() {
-        let [listAllRole, total] = await Promise.all([
-            Role.findAll({
-                order: [["id", "DESC"]],
-            }),
-            Role.count({
-            })
+        // let [listAllRole, total] = await Promise.all([
+        //     Role.findAll({
+        //         order: [["id", "DESC"]],
+        //     }),
+        //     Role.count({
+        //     })
 
-        ]);
-        let RoleOneSelect = [];
+        // ]);
+        // let RoleOneSelect = [];
 
-        listAllRole.map(i => {
-            var list = {};
-            list.value = i.id;
-            list.label = i.name;
-            RoleOneSelect.push(list)
-        })
-        return RoleOneSelect
+        // listAllRole.map(i => {
+        //     var list = {};
+        //     list.value = i.id;
+        //     list.label = i.name;
+        //     RoleOneSelect.push(list)
+        // })
+        // return RoleOneSelect
+        return await RoleApi.getOneSelect()
     }
     async createRole(data) {
-        if (!data.name || !data.description) {
-            throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_REQUIRE_INPUT);
-        }
-        let dataCreate = {
-            name: data.name,
-            description: data.description,
-            del: 0
-        }
-        let create = await Role.create(dataCreate);
-        let listPermission = data.List_Per.map(x => x.value)
-        this.updateRolePermission(create.id, listPermission)
-        return create;
-        //return await RoleApi.createRole(data);
+        // if (!data.name || !data.description) {
+        //     throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_REQUIRE_INPUT);
+        // }
+        // let dataCreate = {
+        //     name: data.name,
+        //     description: data.description,
+        //     del: 0
+        // }
+        // let create = await Role.create(dataCreate);
+        // let listPermission = data.List_Per.map(x => x.value)
+        // this.updateRolePermission(create.id, listPermission)
+        // return create;
+        return await RoleApi.createRole(data);
     }
     async deleteRole(data) {
-        let objDelete = await Role.findOne({
-            where: {
-                id: data.id,
-                del: 0
-            }
-        })
+        // let objDelete = await Role.findOne({
+        //     where: {
+        //         id: data.id,
+        //         del: 0
+        //     }
+        // })
 
-        if (!objDelete) {
-            throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_SEARCH_NOT_FOUND)
-        };
-        let dataDelete = {
-            del: 1,
-        }
-        const existRoleUser = await UserRole.findOne({
-            where: {
-                role_id: data.id
-            }
-        })
+        // if (!objDelete) {
+        //     throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_SEARCH_NOT_FOUND)
+        // };
+        // let dataDelete = {
+        //     del: 1,
+        // }
+        // const existRoleUser = await UserRole.findOne({
+        //     where: {
+        //         role_id: data.id
+        //     }
+        // })
 
-        if (existRoleUser) {
-            throw new Error(ERROR_MESSAGE.REMOVE_ROLE.ERR_EXIST_USER);
-        }
-        await RolePermission.destroy({ where: { role_id: data.id } })
-        return objDelete.update(dataDelete)
+        // if (existRoleUser) {
+        //     throw new Error(ERROR_MESSAGE.REMOVE_ROLE.ERR_EXIST_USER);
+        // }
+        // await RolePermission.destroy({ where: { role_id: data.id } })
+        // return objDelete.update(dataDelete)
+        return await RoleApi.deleteRole(data)
     }
 
     async updateRole(data) {
-        if (!data.id) {
-            throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_SEARCH_NOT_FOUND);
-        }
-        let objUpdate = await Role.findOne({
-            where: {
-                id: data.id,
-                del: 0
-            }
-        })
-        let dataUpdate = {
-            name: data.name,
-            description: data.description,
-        }
-        let listPermission = data.List_Per.map(x => x.value)
-        this.updateRolePermission(data.id, listPermission)
-        return objUpdate.update(dataUpdate)
-        //return await RoleApi.updateRole(data)
+        // if (!data.id) {
+        //     throw new Error(ERROR_MESSAGE.ORGANIZATION.ERR_SEARCH_NOT_FOUND);
+        // }
+        // let objUpdate = await Role.findOne({
+        //     where: {
+        //         id: data.id,
+        //         del: 0
+        //     }
+        // })
+        // let dataUpdate = {
+        //     name: data.name,
+        //     description: data.description,
+        // }
+        // let listPermission = data.List_Per.map(x => x.value)
+        // this.updateRolePermission(data.id, listPermission)
+        // return objUpdate.update(dataUpdate)
+        return await RoleApi.updateRole(data)
     }
     async searchRole(data) {
         // let condition = {
@@ -169,29 +171,30 @@ class MidRole {
         return await RoleApi.searchRole(data)
     }
     async getRolebyId(role_id) {
-        let allRole = await Role.findOne({ where: { id: role_id }, include: ['permission'] })
-        let List_Role = []
-        let datapush = []
-        let list_permission_id = allRole.permission.map(x => x.permission_id)
-        for (var j = 0; j < list_permission_id.length; j++) {
-            if (list_permission_id[j] == null) break;
-            var list = {};
-            let dataPermissions = await Permissions.findOne({ where: { id: list_permission_id[j] } })
-            list.value = list_permission_id[j];
-            list.label = dataPermissions.name;
-            datapush.push(list)
-        }
-        List_Role.push({
-            id: allRole.id,
-            name: allRole.name,
-            description: allRole.description,
-            del: allRole.del,
-            createdAt: allRole.createdAt,
-            List_Per: datapush
-        })
-        return {
-            rows: List_Role
-        }
+        // let allRole = await Role.findOne({ where: { id: role_id }, include: ['permission'] })
+        // let List_Role = []
+        // let datapush = []
+        // let list_permission_id = allRole.permission.map(x => x.permission_id)
+        // for (var j = 0; j < list_permission_id.length; j++) {
+        //     if (list_permission_id[j] == null) break;
+        //     var list = {};
+        //     let dataPermissions = await Permissions.findOne({ where: { id: list_permission_id[j] } })
+        //     list.value = list_permission_id[j];
+        //     list.label = dataPermissions.name;
+        //     datapush.push(list)
+        // }
+        // List_Role.push({
+        //     id: allRole.id,
+        //     name: allRole.name,
+        //     description: allRole.description,
+        //     del: allRole.del,
+        //     createdAt: allRole.createdAt,
+        //     List_Per: datapush
+        // })
+        // return {
+        //     rows: List_Role
+        // }
+        return await RoleApi.getRolebyId(role_id)
     }
     async updateRoleUser(user_id, listUserRole) {
         const oldRoleUser = await UserRole.findAll({ where: { userid: user_id } });
